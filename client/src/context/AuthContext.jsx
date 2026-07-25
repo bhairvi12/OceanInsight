@@ -8,25 +8,24 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Initial optimistic fast load from localStorage
+   
     const savedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
     
     if (savedUser && token) {
       setUser(JSON.parse(savedUser));
       
-      // 2. Perform background verification
+     
       api.get('/auth/me', { headers: { Authorization: `Bearer ${token}` } })
         .then(res => {
-          // Token is valid, session continues smoothly.
-          // Optional: Update user data if changed
+         
           const freshUser = { ...res.data, token };
           console.log('[AuthContext] Validated user session:', freshUser.email, '| Role:', freshUser.role);
           setUser(freshUser);
           localStorage.setItem('user', JSON.stringify(freshUser));
         })
         .catch(err => {
-          // 3 & 4. Token expired or invalid -> clear session
+         
           console.error('Session validation failed:', err);
           logout();
         });
