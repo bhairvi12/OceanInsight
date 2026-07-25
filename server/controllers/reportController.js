@@ -117,6 +117,13 @@ exports.getNearbyReports = async (req, res) => {
 exports.createReport = async (req, res) => {
   let { hazardType, severity, title, description, lat, lng, locationName } = req.body;
 
+  const parsedLat = parseFloat(lat);
+  const parsedLng = parseFloat(lng);
+
+  if (lat === undefined || lat === null || lng === undefined || lng === null || isNaN(parsedLat) || isNaN(parsedLng)) {
+    return res.status(400).json({ message: "Invalid or missing coordinates. Latitude and Longitude are required and must be valid numbers." });
+  }
+
   try {
     // 1. Hybrid AI Classification Logic
     const { aiType, aiSeverity, confidence } = classifyHazard(description);
@@ -156,7 +163,7 @@ exports.createReport = async (req, res) => {
       description,
       location: {
         type: 'Point',
-        coordinates: [parseFloat(lng), parseFloat(lat)],
+        coordinates: [parsedLng, parsedLat],
         name: locationName
       },
       imageUrl,

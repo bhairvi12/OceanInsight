@@ -5,20 +5,20 @@ const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 
-// Connect Database
+
 connectDB();
 
 const app = express();
 const server = http.createServer(app);
 
-// Enable CORS for all routes (allow client origin)
-app.use(cors({ origin: '*' }));
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
+app.use(cors({ origin: clientUrl }));
 app.use(express.json());
 
-// Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: clientUrl,
     methods: ['GET', 'POST']
   }
 });
@@ -31,15 +31,15 @@ io.on('connection', (socket) => {
   });
 });
 
-// Make io accessible in routes
+
 app.set('io', io);
 
-// Routes
+
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 
-// Basic route
+
 app.get('/', (req, res) => {
   res.send('OceanInsight API is running...');
 });
